@@ -174,3 +174,4 @@ alter table airbnb_schema."Message" alter column message_id set default gen_rand
 
 alter table airbnb_schema."Review" alter column review_id set default gen_random_uuid();
 
+
