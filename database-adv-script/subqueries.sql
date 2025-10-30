@@ -32,4 +32,4 @@ WHERE
 			AIRBNB_SCHEMA."Booking" B
 		WHERE
 			B.USER_ID = U.USER_ID
-	) > 2;
+	) > 3;
