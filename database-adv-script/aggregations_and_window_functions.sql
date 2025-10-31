@@ -22,7 +22,7 @@ SELECT
     COUNT(*) AS TOTAL_BOOKINGS,
     RANK() OVER (ORDER BY COUNT(*) asc) AS BOOKING_RANK
 	,
-	Row_number()over (order by count(*) asc)
+	ROW_NUMBER()over (order by count(*) asc)
 FROM 
 AIRBNB_SCHEMA."Booking"GROUP BY 
     PROPERTY_ID
