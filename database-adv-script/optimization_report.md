@@ -1,0 +1,96 @@
+# Query Plan Documentation
+
+This README explains the query plan for retrieving all bookings with user, property, and payment details.
+
+## SQL Query
+
+```sql
+SELECT *
+FROM Booking b
+LEFT JOIN Payment pa ON pa.booking_id = b.booking_id
+INNER JOIN Property p ON b.property_id = p.property_id
+INNER JOIN "User" u ON b.user_id = u.user_id;
+```
+
+## Query Execution Plan
+
+```
+Hash Join  (cost=38.33..61.64 rows=508 width=154)
+  Hash Cond: (b.user_id = u.user_id)
+  ->  Hash Join  (cost=37.10..59.05 rows=508 width=132)
+        Hash Cond: (b.property_id = p.property_id)
+        ->  Hash Right Join  (cost=24.18..44.03 rows=780 width=80)
+              Hash Cond: (pa.booking_id = b.booking_id)
+              ->  Seq Scan on "Payment" pa  (cost=0.00..17.80 rows=780 width=48)
+              ->  Hash  (cost=16.30..16.30 rows=630 width=48)
+                    ->  Seq Scan on "Booking" b  (cost=0.00..16.30 rows=630 width=48)
+        ->  Hash  (cost=11.30..11.30 rows=130 width=84)
+              ->  Seq Scan on "Property" p  (cost=0.00..11.30 rows=130 width=84)
+  ->  Hash  (cost=1.10..1.10 rows=10 width=54)
+        ->  Seq Scan on "User" u  (cost=0.00..1.10 rows=10 width=54)
+```
+
+## Step-by-Step Explanation
+
+### 1. Scan User Table
+
+* **Seq Scan on "User" u**: Reads all rows from the User table (estimated 10 rows).
+* **Hash**: Builds an in-memory hash table keyed on `user_id` for fast joining with Booking.
+
+### 2. Scan Property Table
+
+* **Seq Scan on "Property" p**: Reads all rows from Property table (estimated 130 rows).
+* **Hash**: Builds a hash table keyed on `property_id` for joining with Booking.
+
+### 3. Scan Booking Table
+
+* **Seq Scan on "Booking" b**: Reads all rows from Booking (estimated 630 rows).
+* **Hash**: Builds a hash table keyed on `booking_id` for joining with Payment.
+
+### 4. Scan Payment Table
+
+* **Seq Scan on "Payment" pa**: Reads all rows from Payment (estimated 780 rows).
+
+### 5. Hash Right Join: Payment + Booking
+
+* **Hash Right Join** with condition `pa.booking_id = b.booking_id`.
+* Ensures all Payment rows are included, matching Booking rows if present.
+
+### 6. Hash Join: Result + Property
+
+* **Hash Join** with condition `b.property_id = p.property_id`.
+* Matches each booking (and payment) to its property.
+
+### 7. Hash Join: Result + User
+
+* **Hash Join** with condition `b.user_id = u.user_id`.
+* Matches each booking (with payment and property) to the corresponding user.
+* Produces the final output: 508 rows including all details.
+
+## Execution Order Summary
+
+1. Seq Scan User → Hash
+2. Seq Scan Property → Hash
+3. Seq Scan Booking → Hash
+4. Seq Scan Payment
+5. Hash Right Join: Payment + Booking
+6. Hash Join: (Booking + Payment) + Property
+7. Hash Join: (Booking + Payment + Property) + User → final output
+
+## Notes
+
+* `EXPLAIN` shows **estimated rows**, not actual rows. The Property table may have fewer rows in reality.
+* Hash joins optimize joins without indexes, using in-memory hash tables.
+* RIGHT JOIN is used for Payment to ensure **all payment records are included**.
+* Use `ANALYZE` to update statistics for accurate planning.
+
+
+
+## how we can optimize 
+the plan to optimize query first is analyze the all table because to update statustic of the table like in payment table above there is only 5 row but expected one is 780 this will optimize some time after that 
+ - one way to optimize during join is try to make less intermidate table
+ **SELECT**
+**FROM(Payment pa RIGHT JOIN Booking b ON pa.booking_id = b.booking_id) AS pb**
+**INNER JOIN Property p ON pb.property_id = p.property_id**
+**INNER JOIN "User" u ON pb.user_id = u.user_id;**
+this will force postgre to optimize during large table since it will right join then it will use the value of right joint to combine otherthis will optimize
