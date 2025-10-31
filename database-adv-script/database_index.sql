@@ -15,3 +15,12 @@ FROM
 	AIRBNB_SCHEMA."User"
 WHERE
 	EMAIL = 'alice.johnson@example.com';
+
+	EXPLAIN
+	ANALYZE
+SELECT
+	*
+FROM
+	AIRBNB_SCHEMA."User"
+WHERE
+	EMAIL = 'alice.johnson@example.com';
