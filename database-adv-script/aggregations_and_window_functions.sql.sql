@@ -1,0 +1,30 @@
+SELECT
+	U.LAST_NAME,
+	U.EMAIL,
+	P.COUNT
+FROM
+	AIRBNB_SCHEMA."User" AS U
+	INNER JOIN (
+		SELECT
+			USER_ID,
+			COUNT(USER_ID)
+		FROM
+			AIRBNB_SCHEMA."Booking"
+		GROUP BY
+			USER_ID
+	) AS P ON P.USER_ID = U.USER_ID
+ORDER BY
+	P.COUNT ASC;
+
+
+SELECT 
+    PROPERTY_ID,
+    COUNT(*) AS TOTAL_BOOKINGS,
+    RANK() OVER (ORDER BY COUNT(*) asc) AS BOOKING_RANK
+	,
+	Row_number()over (order by count(*) asc)
+FROM 
+AIRBNB_SCHEMA."Booking"GROUP BY 
+    PROPERTY_ID
+ORDER BY 
+    booking_rank;
