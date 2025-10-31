@@ -1,16 +1,17 @@
-create unique index uq_index_email
-on airbnb_schema."User"(email);
+CREATE  INDEX UQ_INDEX_EMAIL ON AIRBNB_SCHEMA."User" (EMAIL);
 
-create unique index uq_index_property_id
-on airbnb_schema."Property"(property_id);
+CREATE  INDEX UQ_INDEX_PROPERTY_ID ON AIRBNB_SCHEMA."Property" (PROPERTY_ID);
 
-create unique index uq_index_booking
-on airbnb_schema."Booking"(booking_id);
+CREATE  INDEX UQ_INDEX_BOOKING ON AIRBNB_SCHEMA."Booking" (BOOKING_ID);
 
-create unique index uq_index_booking_payment
-on airbnb_schema."Payment"(booking_id);
+CREATE  INDEX UQ_INDEX_BOOKING_PAYMENT ON AIRBNB_SCHEMA."Payment" (BOOKING_ID);
+CREATE INDEX UQ_INDEX_PROPERTY_ID_BOOKING ON AIRBNB_SCHEMA."Booking" (PROPERTY_ID);
+ANALYZE AIRBNB_SCHEMA."User";
 
-
-
-create unique index uq_index_property_id_booking
-on airbnb_schema."Booking"(property_id);
+EXPLAIN
+SELECT
+	*
+FROM
+	AIRBNB_SCHEMA."User"
+WHERE
+	EMAIL = 'alice.johnson@example.com';
